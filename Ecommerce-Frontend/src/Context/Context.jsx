@@ -19,21 +19,36 @@ export const AppProvider = ({ children }) => {
 
 
   const addToCart = (product) => {
-    const existingProductIndex = cart.findIndex((item) => item.id === product.id);
-    if (existingProductIndex !== -1) {
-      const updatedCart = cart.map((item, index) =>
-        index === existingProductIndex
-          ? { ...item, quantity: item.quantity + 1 }
-          : item
-      );
-      setCart(updatedCart);
-      localStorage.setItem('cart', JSON.stringify(updatedCart));
-    } else {
-      const updatedCart = [...cart, { ...product, quantity: 1 }];
-      setCart(updatedCart);
-      localStorage.setItem('cart', JSON.stringify(updatedCart));
+  const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const existingProduct = cart.find(item => item.id === product.id);
+
+  let updatedCart;
+
+  if (existingProduct) {
+    if (existingProduct.quantity >= 7) {
+      alert('Maximum 7 items of this product allowed!');
+      return;
     }
-  };
+    if (totalItems >= 7) {
+      alert('Maximum 7 items total in cart! Current: ' + totalItems);
+      return;
+    }
+    updatedCart = cart.map((item) =>
+      item.id === product.id
+        ? { ...item, quantity: item.quantity + 1 }
+        : item
+    );
+  } else {
+    if (totalItems >= 7) {
+      alert('Maximum 7 items allowed in cart! Remove some items first.');
+      return;
+    }
+    updatedCart = [...cart, { ...product, quantity: 1 }];
+  }
+
+  setCart(updatedCart);
+  localStorage.setItem('cart', JSON.stringify(updatedCart));
+};
 
   const removeFromCart = (productId) => {
     console.log("productID",productId)
